@@ -1,6 +1,12 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import * as Localization from 'expo-localization';
+import '@formatjs/intl-pluralrules'
+import '@formatjs/intl-pluralrules/locale-data/en'
+import '@formatjs/intl-pluralrules/locale-data/fr'
+import '@formatjs/intl-pluralrules/locale-data/tr'
+import '@formatjs/intl-pluralrules/locale-data/de'
+import '@formatjs/intl-pluralrules/locale-data/ar'
 
 const resources = {
   en: {

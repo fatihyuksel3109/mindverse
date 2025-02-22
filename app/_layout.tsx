@@ -71,12 +71,33 @@ export default function RootLayout() {
 
   const theme = isDark ? customDarkTheme : customLightTheme;
   
-  const { DarkTheme, LightTheme } = adaptNavigationTheme({
-    reactNavigationDark: theme,
-    reactNavigationLight: theme,
+  const mapToNavigationTheme = (theme: any) => ({
+    dark: theme.dark,
+    colors: {
+      primary: theme.colors.primary,
+      background: theme.colors.background,
+      card: theme.colors.surface,
+      text: theme.colors.text,
+      border: theme.colors.onSurface,
+      notification: theme.colors.accent,
+    },
+    fonts: theme.fonts,
   });
 
-  const navigationTheme = isDark ? DarkTheme : LightTheme;
+  const { DarkTheme, LightTheme } = adaptNavigationTheme({
+    reactNavigationDark: mapToNavigationTheme(customDarkTheme),
+    reactNavigationLight: mapToNavigationTheme(customLightTheme),
+  });
+
+  const navigationTheme = {
+    ...isDark ? DarkTheme : LightTheme,
+    fonts: {
+      regular: { fontFamily: 'sans-serif', fontWeight: 'normal' },
+      medium: { fontFamily: 'sans-serif-medium', fontWeight: '500' },
+      bold: { fontFamily: 'sans-serif-bold', fontWeight: 'bold' },
+      heavy: { fontFamily: 'sans-serif-bold', fontWeight: '900' }
+    }
+  };
 
   const setTheme = async (newTheme: ThemeType) => {
     setThemeType(newTheme);
@@ -91,7 +112,7 @@ export default function RootLayout() {
 
   return (
     <ThemeContext.Provider value={{ theme: themeType, setTheme, isDark }}>
-      <PaperProvider theme={theme}>
+      <PaperProvider theme={isDark ? customDarkTheme : customLightTheme}>
         <ThemeProvider value={navigationTheme}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

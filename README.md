@@ -85,7 +85,7 @@ npm install
 ### 3. **Set Up API Keys**
 - Create an `.env` file in the root directory with the following content:
 ```env
-OPENAI_API_KEY=your_api_key
+EXPO_PUBLIC_OPENAI_API_KEY=your_api_key
 ```
 
 ### 4. **Run the App**
