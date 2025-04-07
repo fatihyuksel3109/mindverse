@@ -14,7 +14,8 @@ const resources = {
       tabs: {
         home: '',
         history: 'History',
-        settings: 'Settings'
+        settings: 'Settings',
+        profile: 'Profile'
       },
       home: {
         title: 'MindVerse',
@@ -35,6 +36,15 @@ const resources = {
         darkMode: 'Dark Mode',
         language: 'Language',
         about: 'About MindVerse'
+      },
+      profile: {
+        title: 'Profile',
+        email: 'Email',
+        joined: 'Joined',
+        signOut: 'Sign Out',
+        loading: 'Loading...',
+        networkError: 'Network error',
+        loadFailed: 'Failed to load profile'
       }
     }
   },
@@ -43,7 +53,8 @@ const resources = {
       tabs: {
         home: '',
         history: 'Historique',
-        settings: 'Paramètres'
+        settings: 'Paramètres',
+        profile: 'Profil'
       },
       home: {
         title: 'MindVerse',
@@ -64,6 +75,15 @@ const resources = {
         darkMode: 'Mode Sombre',
         language: 'Langue',
         about: 'À propos de MindVerse'
+      },
+      profile: {
+        title: 'Profil',
+        email: 'Email',
+        joined: 'Inscrit le',
+        signOut: 'Se Déconnecter',
+        loading: 'Chargement...',
+        networkError: 'Erreur réseau',
+        loadFailed: 'Échec du chargement du profil'
       }
     }
   },
@@ -72,7 +92,8 @@ const resources = {
       tabs: {
         home: '',
         history: 'Geçmiş',
-        settings: 'Ayarlar'
+        settings: 'Ayarlar',
+        profile: 'Profil'
       },
       home: {
         title: 'MindVerse',
@@ -93,6 +114,15 @@ const resources = {
         darkMode: 'Karanlık Mod',
         language: 'Dil',
         about: 'MindVerse Hakkında'
+      },
+      profile: {
+        title: 'Profil',
+        email: 'E-posta',
+        joined: 'Katılma Tarihi',
+        signOut: 'Çıkış Yap',
+        loading: 'Yükleniyor...',
+        networkError: 'Ağ hatası',
+        loadFailed: 'Profil yüklenemedi'
       }
     }
   },
@@ -101,7 +131,8 @@ const resources = {
       tabs: {
         home: '',
         history: 'Verlauf',
-        settings: 'Einstellungen'
+        settings: 'Einstellungen',
+        profile: 'Profil'
       },
       home: {
         title: 'MindVerse',
@@ -122,6 +153,15 @@ const resources = {
         darkMode: 'Dunkelmodus',
         language: 'Sprache',
         about: 'Über MindVerse'
+      },
+      profile: {
+        title: 'Profil',
+        email: 'E-Mail',
+        joined: 'Beigetreten am',
+        signOut: 'Abmelden',
+        loading: 'Wird geladen...',
+        networkError: 'Netzwerkfehler',
+        loadFailed: 'Fehler beim Laden des Profils'
       }
     }
   },
@@ -130,7 +170,8 @@ const resources = {
       tabs: {
         home: '',
         history: 'السجل',
-        settings: 'الإعدادات'
+        settings: 'الإعدادات',
+        profile: 'الملف الشخصي'
       },
       home: {
         title: 'مايندفيرس',
@@ -151,6 +192,15 @@ const resources = {
         darkMode: 'الوضع الداكن',
         language: 'اللغة',
         about: 'حول مايندفيرس'
+      },
+      profile: {
+        title: 'الملف الشخصي',
+        email: 'البريد الإلكتروني',
+        joined: 'تاريخ الانضمام',
+        signOut: 'تسجيل الخروج',
+        loading: 'جاري التحميل...',
+        networkError: 'خطأ في الشبكة',
+        loadFailed: 'فشل تحميل الملف الشخصي'
       }
     }
   }
