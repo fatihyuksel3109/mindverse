@@ -1,13 +1,15 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router'; // Import useRouter
+import { useRouter } from 'expo-router';
 
 interface AuthContextType {
   token: string | null;
-  isAuthenticated: boolean | null; // null means initial loading state
+  isAuthenticated: boolean | null;
   isLoading: boolean;
+  interpretationCredits: number;
   login: (newToken: string) => Promise<void>;
   logout: () => Promise<void>;
+  fetchUserData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,29 +18,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter(); // Get router instance
+  const [interpretationCredits, setInterpretationCredits] = useState(0);
+  const router = useRouter();
+
+  const fetchUserData = async () => {
+    try {
+      const storedToken = await AsyncStorage.getItem('token');
+      if (!storedToken) {
+        setIsAuthenticated(false);
+        setInterpretationCredits(0);
+        return;
+      }
+      const response = await fetch('http://localhost:3000/api/profile', {
+        headers: { 'Authorization': `Bearer ${storedToken}` },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setToken(storedToken);
+        setIsAuthenticated(true);
+        setInterpretationCredits(data.interpretationCredits || 0);
+      } else {
+        setIsAuthenticated(false);
+        setInterpretationCredits(0);
+      }
+    } catch (e) {
+      console.error('Failed to fetch user data', e);
+      setIsAuthenticated(false);
+      setInterpretationCredits(0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Check token on initial load
-    const loadToken = async () => {
-      setIsLoading(true);
-      try {
-        const storedToken = await AsyncStorage.getItem('token');
-        if (storedToken) {
-          setToken(storedToken);
-          setIsAuthenticated(true); // Assume token presence means authenticated initially
-          // Optional: Add validation here if needed (call /api/profile)
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch (e) {
-        console.error("Failed to load token", e);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadToken();
+    fetchUserData();
   }, []);
 
   const login = async (newToken: string) => {
@@ -47,12 +60,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await AsyncStorage.setItem('token', newToken);
       setToken(newToken);
       setIsAuthenticated(true);
-       // router.replace('/'); // Redirect happens in _layout now based on state change
+      await fetchUserData(); // Fetch credits after login
     } catch (e) {
-       console.error("Failed to save token", e);
-       // Handle error appropriately
+      console.error('Failed to save token', e);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -62,17 +74,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await AsyncStorage.removeItem('token');
       setToken(null);
       setIsAuthenticated(false);
-      // router.replace('/signin'); // Redirect happens in _layout now based on state change
+      setInterpretationCredits(0);
     } catch (e) {
-        console.error("Failed to remove token", e);
-        // Handle error appropriately
+      console.error('Failed to remove token', e);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ token, isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ token, isAuthenticated, isLoading, interpretationCredits, login, logout, fetchUserData }}>
       {children}
     </AuthContext.Provider>
   );

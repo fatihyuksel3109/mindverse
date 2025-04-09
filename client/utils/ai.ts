@@ -15,7 +15,7 @@ Analyze the dream and provide an insightful interpretation that considers:
 
 Keep the interpretation concise but meaningful, around 2-3 paragraphs.`;
 
-export async function interpretDream(dreamText: string, language: string): Promise<string> {
+export async function interpretDream(dreamText: string, language: string, token: string): Promise<string> {
   try {
     // Adjust the instruction for language dynamically
     const languageInstruction = {

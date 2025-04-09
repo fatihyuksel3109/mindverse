@@ -24,7 +24,10 @@ const resources = {
         interpret: 'Interpret Dream',
         interpretation: "Interpretation of your dream",
         loading: 'Interpreting your dream...',
-        error: 'Error interpreting dream. Please try again.'
+        error: 'Error interpreting dream. Please try again.',
+        credits: 'Remaining Interpretations: {{count}}',
+        subscribe: 'Subscribe for More',
+        minLength: 'Please enter at least {{count}} characters to interpret your dream.',
       },
       history: {
         title: 'Dream History',
@@ -44,8 +47,14 @@ const resources = {
         signOut: 'Sign Out',
         loading: 'Loading...',
         networkError: 'Network error',
-        loadFailed: 'Failed to load profile'
-      }
+        loadFailed: 'Failed to load profile',
+        credits: 'Remaining Interpretations: {{count}}',
+        subscribe: 'Subscribe',
+      },
+      subscribe: {
+        title: 'Subscribe for More Interpretations',
+        buy: 'Buy Now',
+      },
     }
   },
   fr: {
@@ -63,7 +72,10 @@ const resources = {
         interpret: 'Interpréter le Rêve',
         interpretation: 'Interprétation de votre rêve',
         loading: 'Interprétation de votre rêve...',
-        error: 'Erreur lors de l\'interprétation. Veuillez réessayer.'
+        error: 'Erreur lors de l\'interprétation. Veuillez réessayer.',
+        credits: 'Interprétations restantes : {{count}}',
+        subscribe: 'Abonnez-vous pour plus',
+        minLength: 'Veuillez entrer au moins {{count}} caractères pour interpréter votre rêve.',
       },
       history: {
         title: 'Historique des Rêves',
@@ -83,8 +95,14 @@ const resources = {
         signOut: 'Se Déconnecter',
         loading: 'Chargement...',
         networkError: 'Erreur réseau',
-        loadFailed: 'Échec du chargement du profil'
-      }
+        loadFailed: 'Échec du chargement du profil',
+        credits: 'Interprétations restantes : {{count}}',
+        subscribe: 'S’abonner',
+      },
+      subscribe: {
+        title: 'Abonnez-vous pour plus d’interprétations',
+        buy: 'Acheter maintenant',
+      },
     }
   },
   tr: {
@@ -93,7 +111,8 @@ const resources = {
         home: '',
         history: 'Geçmiş',
         settings: 'Ayarlar',
-        profile: 'Profil'
+        profile: 'Profil',
+        subscribe: 'Abone Ol',
       },
       home: {
         title: 'MindVerse',
@@ -102,7 +121,10 @@ const resources = {
         interpret: 'Rüyayı Yorumla',
         interpretation: 'Rüyanızın Yorumu',
         loading: 'Rüyanız yorumlanıyor...',
-        error: 'Rüya yorumlanırken hata oluştu. Lütfen tekrar deneyin.'
+        error: 'Rüya yorumlanırken hata oluştu. Lütfen tekrar deneyin.',
+        credits: 'Kalan Tabirler: {{count}}',
+        subscribe: 'Daha Fazla İçin Abone Ol',
+        minLength: 'Rüyanızı yorumlamak için lütfen en az {{count}} karakter girin.',
       },
       history: {
         title: 'Rüya Geçmişi',
@@ -122,8 +144,14 @@ const resources = {
         signOut: 'Çıkış Yap',
         loading: 'Yükleniyor...',
         networkError: 'Ağ hatası',
-        loadFailed: 'Profil yüklenemedi'
-      }
+        loadFailed: 'Profil yüklenemedi',
+        credits: 'Kalan Tabirler: {{count}}',
+        subscribe: 'Abone Ol',
+      },
+      subscribe: {
+        title: 'Daha Fazla Tabir İçin Abone Ol',
+        buy: 'Şimdi Satın Al',
+      },
     }
   },
   de: {
@@ -141,7 +169,10 @@ const resources = {
         interpret: 'Traum Interpretieren',
         interpretation: 'Deutung Ihres Traums',
         loading: 'Ihr Traum wird interpretiert...',
-        error: 'Fehler bei der Interpretation. Bitte versuchen Sie es erneut.'
+        error: 'Fehler bei der Interpretation. Bitte versuchen Sie es erneut.',
+        credits: 'Verbleibende Deutungen: {{count}}',
+        subscribe: 'Abonnieren für mehr',
+        minLength: 'Bitte geben Sie mindestens {{count}} Zeichen ein, um Ihren Traum zu deuten.',
       },
       history: {
         title: 'Traumverlauf',
@@ -161,8 +192,14 @@ const resources = {
         signOut: 'Abmelden',
         loading: 'Wird geladen...',
         networkError: 'Netzwerkfehler',
-        loadFailed: 'Fehler beim Laden des Profils'
-      }
+        loadFailed: 'Fehler beim Laden des Profils',
+        credits: 'Verbleibende Deutungen: {{count}}',
+        subscribe: 'Abonnieren',
+      },
+      subscribe: {
+        title: 'Abonnieren für weitere Deutungen',
+        buy: 'Jetzt kaufen',
+      },
     }
   },
   ar: {
@@ -180,7 +217,10 @@ const resources = {
         interpret: 'تفسير الحلم',
         interpretation: "تفسير حلمك",
         loading: 'جاري تفسير حلمك...',
-        error: 'خطأ في تفسير الحلم. يرجى المحاولة مرة أخرى.'
+        error: 'خطأ في تفسير الحلم. يرجى المحاولة مرة أخرى.',
+        credits: 'عدد التفسيرات المتبقية: {{count}}',
+        subscribe: 'اشترك للمزيد',
+        minLength: 'يرجى إدخال ما لا يقل عن {{count}} حرفًا لتفسير حلمك.',
       },
       history: {
         title: 'سجل الأحلام',
@@ -200,11 +240,18 @@ const resources = {
         signOut: 'تسجيل الخروج',
         loading: 'جاري التحميل...',
         networkError: 'خطأ في الشبكة',
-        loadFailed: 'فشل تحميل الملف الشخصي'
-      }
+        loadFailed: 'فشل تحميل الملف الشخصي',
+        credits: 'عدد التفسيرات المتبقية: {{count}}',
+        subscribe: 'اشترك',
+      },
+      subscribe: {
+        title: 'اشترك للحصول على المزيد من التفسيرات',
+        buy: 'اشتر الآن',
+      },
     }
   }
 };
+
 
 i18n
   .use(initReactI18next)

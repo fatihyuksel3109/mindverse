@@ -1,27 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, I18nManager } from 'react-native';
 import { Text, TextInput, Button, useTheme, Card, HelperText } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Dream } from '../../types/dream';
 import { saveDream } from '../../utils/storage';
 import { interpretDream } from '../../utils/ai';
+import { useAuth } from '../../context/AuthContext';
+import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
+  const { token, interpretationCredits, fetchUserData } = useAuth();
+  const router = useRouter();
   const [dreamText, setDreamText] = useState('');
   const [loading, setLoading] = useState(false);
   const [interpretation, setInterpretation] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hasInterpretedOnce, setHasInterpretedOnce] = useState(false);
+
+  const MIN_DREAM_LENGTH = 10; // Minimum characters required for interpretation
+
+  useEffect(() => {
+    fetchUserData(); // Ensure credits are up-to-date on mount
+  }, [fetchUserData]);
 
   const handleInterpretDream = async () => {
-    if (!dreamText.trim()) return;
+    if (!dreamText.trim() || dreamText.trim().length < MIN_DREAM_LENGTH) return;
 
     setLoading(true);
     setError(null);
     try {
-      const dreamInterpretation = await interpretDream(dreamText, i18n.language);
-      
+      if (!token) throw new Error('Authentication token missing');
+      const dreamInterpretation = await interpretDream(dreamText, i18n.language, token);
+
       const newDream: Dream = {
         id: Date.now().toString(),
         content: dreamText,
@@ -32,20 +44,26 @@ export default function HomeScreen() {
 
       await saveDream(newDream);
       setInterpretation(dreamInterpretation);
-    } catch (error) {
-      console.error('Error interpreting dream:', error);
-      setError(t('home.error'));
+      setHasInterpretedOnce(true);
+      await fetchUserData(); // Update credits after interpretation
+    } catch (err) {
+      // Type-safe error handling
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error('Error interpreting dream:', errorMessage);
+      setError(errorMessage === 'Failed to interpret dream' ? t('home.error') : errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  const isDreamTextValid = dreamText.trim().length >= MIN_DREAM_LENGTH;
+
   return (
-    <ScrollView 
+    <ScrollView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       contentContainerStyle={[
         styles.contentContainer,
-        { alignItems: I18nManager.isRTL ? 'flex-end' : 'flex-start' }
+        { alignItems: I18nManager.isRTL ? 'flex-end' : 'flex-start' },
       ]}
     >
       <View style={styles.header}>
@@ -54,6 +72,9 @@ export default function HomeScreen() {
         </Text>
         <Text variant="titleMedium" style={[styles.subtitle, { color: theme.colors.onSurface }]}>
           {t('home.subtitle')}
+        </Text>
+        <Text style={[styles.credits, { color: theme.colors.onSurface }]}>
+          {t('home.credits', { count: interpretationCredits })}
         </Text>
       </View>
 
@@ -73,21 +94,37 @@ export default function HomeScreen() {
             error={!!error}
             theme={{ ...theme, colors: { ...theme.colors, primary: theme.colors.primary } }}
           />
+          {!isDreamTextValid && dreamText.trim().length > 0 && (
+            <HelperText type="info" visible={!isDreamTextValid}>
+              {t('home.minLength', { count: MIN_DREAM_LENGTH })}
+            </HelperText>
+          )}
           {error && (
             <HelperText type="error" visible={!!error}>
               {error}
             </HelperText>
           )}
-          <Button
-            mode="contained"
-            onPress={handleInterpretDream}
-            loading={loading}
-            disabled={loading || !dreamText.trim()}
-            style={styles.button}
-            contentStyle={styles.buttonContent}
-          >
-            {loading ? t('home.loading') : t('home.interpret')}
-          </Button>
+          {interpretationCredits > 0 ? (
+            <Button
+              mode="contained"
+              onPress={handleInterpretDream}
+              loading={loading}
+              disabled={loading || !isDreamTextValid}
+              style={styles.button}
+              contentStyle={styles.buttonContent}
+            >
+              {loading ? t('home.loading') : t('home.interpret')}
+            </Button>
+          ) : hasInterpretedOnce ? (
+            <Button
+              mode="contained"
+              onPress={() => router.push('/subscribe')} // Explicitly specify the tabs route
+              style={styles.button}
+              contentStyle={styles.buttonContent}
+            >
+              {t('home.subscribe')}
+            </Button>
+          ) : null}
         </Card.Content>
       </Card>
 
@@ -97,10 +134,12 @@ export default function HomeScreen() {
             <Text variant="titleMedium" style={[styles.interpretationTitle, { color: theme.colors.primary }]}>
               {t('home.interpretation')}
             </Text>
-            <Text style={[
-              styles.interpretationText,
-              { color: theme.colors.onSurface, textAlign: I18nManager.isRTL ? 'right' : 'left' }
-            ]}>
+            <Text
+              style={[
+                styles.interpretationText,
+                { color: theme.colors.onSurface, textAlign: I18nManager.isRTL ? 'right' : 'left' },
+              ]}
+            >
               {interpretation}
             </Text>
           </Card.Content>
@@ -133,6 +172,11 @@ const styles = StyleSheet.create({
   subtitle: {
     textAlign: 'center',
     opacity: 0.8,
+  },
+  credits: {
+    marginTop: 8,
+    fontSize: 16,
+    textAlign: 'center',
   },
   card: {
     marginBottom: 24,

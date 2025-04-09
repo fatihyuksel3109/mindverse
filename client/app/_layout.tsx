@@ -11,7 +11,6 @@ import '../i18n';
 
 const THEME_KEY = '@theme_mode';
 
-// Custom Paper Themes
 const customDarkPaperTheme = {
   ...MD3DarkTheme,
   fonts: MD3DarkTheme.fonts,
@@ -42,7 +41,6 @@ const customLightPaperTheme = {
   },
 };
 
-// Base Navigation Themes
 const baseNavDarkTheme = {
   dark: true,
   colors: {
@@ -67,7 +65,6 @@ const baseNavLightTheme = {
   },
 };
 
-// Adapt Navigation Themes
 const { DarkTheme: AdaptedNavDarkTheme } = adaptNavigationTheme({
   reactNavigationDark: baseNavDarkTheme,
   materialDark: customDarkPaperTheme,
@@ -143,10 +140,10 @@ function AppContent() {
     console.log(`Auth Check: isLoading=${isLoading}, isAuthenticated=${isAuthenticated}, pathname=${pathname}, isPublicRoute=${isPublicRoute}`);
 
     if (isAuthenticated === false && !isPublicRoute) {
-      console.log("Redirecting to /signin (unauthenticated)");
+      console.log('Redirecting to /signin (unauthenticated)');
       router.replace('/signin');
     } else if (isAuthenticated && isPublicRoute) {
-      console.log("Redirecting to /(tabs) (authenticated)");
+      console.log('Redirecting to /(tabs) (authenticated)');
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, isLoading, pathname, router]);

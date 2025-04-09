@@ -12,8 +12,8 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const { logout, token } = useAuth(); // Use AuthContext
-  const [userData, setUserData] = useState<{ email: string; createdAt: string } | null>(null);
+  const { logout, token, interpretationCredits, fetchUserData } = useAuth();
+  const [userData, setUserData] = useState<{ email: string; createdAt: string; interpretationCredits?: number } | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,7 +21,6 @@ export default function ProfileScreen() {
     const fetchProfile = async () => {
       try {
         setIsLoading(true);
-        
         if (!token) {
           console.log('No token found, redirecting to signin');
           router.replace('/signin');
@@ -29,7 +28,6 @@ export default function ProfileScreen() {
         }
 
         console.log('Fetching profile from:', `${API_URL}/api/profile`);
-        
         const response = await fetch(`${API_URL}/api/profile`, {
           method: 'GET',
           headers: {
@@ -43,6 +41,7 @@ export default function ProfileScreen() {
         
         if (response.ok) {
           setUserData(data);
+          await fetchUserData(); // Sync credits with AuthContext
         } else {
           setError(data.error || t('profile.loadFailed'));
         }
@@ -55,13 +54,12 @@ export default function ProfileScreen() {
     };
 
     fetchProfile();
-  }, [router, t, token]); // Add token as dependency
+  }, [router, t, token]);
 
   const handleSignOut = async () => {
     try {
       await logout();
       console.log('Logged out via AuthContext');
-      // No need for router.replace here; _layout.tsx will handle it
     } catch (error) {
       console.error('Sign out error:', error);
       setError(t('profile.signOutFailed'));
@@ -94,6 +92,12 @@ export default function ProfileScreen() {
           <Text style={styles.info}>
             {t('profile.joined')}: {new Date(userData?.createdAt || '').toLocaleDateString()}
           </Text>
+          <Text style={styles.info}>
+            {t('profile.credits', { count: interpretationCredits })}
+          </Text>
+          <Button mode="contained" onPress={() => router.push('/subscribe')} style={styles.button}>
+            {t('profile.subscribe')}
+          </Button>
           <Button mode="contained" onPress={handleSignOut} style={styles.button}>
             {t('profile.signOut')}
           </Button>
