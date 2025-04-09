@@ -22,8 +22,8 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-// Password validation regex: min 8 chars, 1 uppercase, 1 number, 1 special char
-const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+// Updated password regex to include '.' as a special character
+const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*.])(?=.{8,})/;
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
@@ -52,7 +52,7 @@ app.post('/api/signup', async (req, res) => {
     // Validate password
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
-        error: 'Password must be at least 8 characters long and include an uppercase letter, a number, and a special character'
+        error: 'Password must be at least 8 characters long and include an uppercase letter, a number, and a special character (e.g., !@#$%^&*.)'
       });
     }
 

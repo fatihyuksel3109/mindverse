@@ -1,19 +1,20 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext, useContext } from 'react';
 import { Stack, useRouter, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { PaperProvider, MD3DarkTheme, MD3LightTheme, adaptNavigationTheme } from 'react-native-paper';
 import { useColorScheme } from 'react-native';
-import { ThemeProvider } from '@react-navigation/native';
+import { ThemeProvider, Theme } from '@react-navigation/native';
 import { I18nManager } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthProvider, useAuth } from '../context/AuthContext';
 import '../i18n';
 
-// Theme storage key
 const THEME_KEY = '@theme_mode';
 
-// Custom themes
-const customDarkTheme = {
+// Custom Paper Themes
+const customDarkPaperTheme = {
   ...MD3DarkTheme,
+  fonts: MD3DarkTheme.fonts,
   colors: {
     ...MD3DarkTheme.colors,
     background: '#263132',
@@ -26,22 +27,59 @@ const customDarkTheme = {
   },
 };
 
-const customLightTheme = {
+const customLightPaperTheme = {
   ...MD3LightTheme,
+  fonts: MD3LightTheme.fonts,
   colors: {
     ...MD3LightTheme.colors,
     primary: '#2f3d3e',
     secondary: '#7FDBDA',
     background: '#ffffff',
+    surface: MD3LightTheme.colors.surface,
+    onSurface: MD3LightTheme.colors.onSurface,
+    accent: '#E8F8F7',
+    text: '#2f3d3e',
   },
 };
 
+// Base Navigation Themes
+const baseNavDarkTheme = {
+  dark: true,
+  colors: {
+    primary: customDarkPaperTheme.colors.primary,
+    background: customDarkPaperTheme.colors.background,
+    card: customDarkPaperTheme.colors.surface,
+    text: customDarkPaperTheme.colors.text,
+    border: customDarkPaperTheme.colors.onSurface,
+    notification: customDarkPaperTheme.colors.accent,
+  },
+};
+
+const baseNavLightTheme = {
+  dark: false,
+  colors: {
+    primary: customLightPaperTheme.colors.primary,
+    background: customLightPaperTheme.colors.background,
+    card: customLightPaperTheme.colors.surface,
+    text: customLightPaperTheme.colors.text,
+    border: customLightPaperTheme.colors.onSurface,
+    notification: customLightPaperTheme.colors.accent,
+  },
+};
+
+// Adapt Navigation Themes
+const { DarkTheme: AdaptedNavDarkTheme } = adaptNavigationTheme({
+  reactNavigationDark: baseNavDarkTheme,
+  materialDark: customDarkPaperTheme,
+});
+const { LightTheme: AdaptedNavLightTheme } = adaptNavigationTheme({
+  reactNavigationLight: baseNavLightTheme,
+  materialLight: customLightPaperTheme,
+});
+
 export type ThemeType = 'light' | 'dark' | 'system';
 
-// Theme Context
-import { createContext, useContext } from 'react';
-
-export const ThemeContext = createContext<{
+export const AppThemeContext = createContext<{
   theme: ThemeType;
   setTheme: (theme: ThemeType) => void;
   isDark: boolean;
@@ -51,104 +89,89 @@ export const ThemeContext = createContext<{
   isDark: false,
 });
 
-export const useAppTheme = () => useContext(ThemeContext);
+export const useAppTheme = () => useContext(AppThemeContext);
 
-export default function RootLayout() {
-  const systemColorScheme = useColorScheme();
-  const [themeType, setThemeType] = useState<ThemeType>('system');
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const systemColorScheme = useColorScheme();
+  const [appThemeMode, setAppThemeMode] = useState<ThemeType>('system');
 
   useEffect(() => {
-    const initializeApp = async () => {
+    const initializeTheme = async () => {
       try {
         const savedTheme = await AsyncStorage.getItem(THEME_KEY);
         if (savedTheme) {
-          setThemeType(savedTheme as ThemeType);
+          setAppThemeMode(savedTheme as ThemeType);
         }
-        const token = await AsyncStorage.getItem('token');
-        setIsAuthenticated(!!token);
       } catch (error) {
-        console.error('Error initializing app:', error);
-        setIsAuthenticated(false);
+        console.error('Error initializing theme mode:', error);
       }
     };
-    initializeApp();
+    initializeTheme();
   }, []);
 
-  const isDark = themeType === 'system' 
-    ? systemColorScheme === 'dark'
-    : themeType === 'dark';
+  const isDark = appThemeMode === 'system' ? systemColorScheme === 'dark' : appThemeMode === 'dark';
+  const currentPaperTheme = isDark ? customDarkPaperTheme : customLightPaperTheme;
+  const baseAdaptedNavTheme = isDark ? AdaptedNavDarkTheme : AdaptedNavLightTheme;
 
-  const theme = isDark ? customDarkTheme : customLightTheme;
-
-  const mapToNavigationTheme = (theme: any) => ({
-    dark: theme.dark,
-    colors: {
-      primary: theme.colors.primary,
-      background: theme.colors.background,
-      card: theme.colors.surface,
-      text: theme.colors.text,
-      border: theme.colors.onSurface,
-      notification: theme.colors.accent,
-    },
-    fonts: theme.fonts,
-  });
-
-  const { DarkTheme, LightTheme } = adaptNavigationTheme({
-    reactNavigationDark: mapToNavigationTheme(customDarkTheme),
-    reactNavigationLight: mapToNavigationTheme(customLightTheme),
-  });
-
-  const navigationTheme = {
-    ...(isDark ? DarkTheme : LightTheme),
-    fonts: {
-      regular: { fontFamily: 'sans-serif', fontWeight: 'normal' as const },
-      medium: { fontFamily: 'sans-serif-medium', fontWeight: '500' as const },
-      bold: { fontFamily: 'sans-serif-bold', fontWeight: 'bold' as const },
-      heavy: { fontFamily: 'sans-serif-bold', fontWeight: '900' as const },
-    },
+  const navigationFonts: Theme['fonts'] = {
+    regular: { fontFamily: 'System', fontWeight: '400' as const },
+    medium: { fontFamily: 'System', fontWeight: '500' as const },
+    bold: { fontFamily: 'System', fontWeight: '700' as const },
+    heavy: { fontFamily: 'System', fontWeight: '900' as const },
   };
 
-  const setTheme = async (newTheme: ThemeType) => {
-    setThemeType(newTheme);
-    await AsyncStorage.setItem(THEME_KEY, newTheme);
+  const finalNavigationTheme: Theme = {
+    ...baseAdaptedNavTheme,
+    fonts: navigationFonts,
+  };
+
+  const setAppTheme = async (newThemeMode: ThemeType) => {
+    setAppThemeMode(newThemeMode);
+    await AsyncStorage.setItem(THEME_KEY, newThemeMode);
   };
 
   useEffect(() => {
-    I18nManager.allowRTL(true);
-    I18nManager.forceRTL(false);
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated === null) return;
+    if (isLoading) return;
 
     const publicRoutes = ['/signin', '/signup'];
-    const isPublicRoute = publicRoutes.includes(pathname);
+    const currentRouteBase = pathname.split('?')[0];
+    const isPublicRoute = publicRoutes.includes(currentRouteBase);
 
-    if (!isAuthenticated && !isPublicRoute) {
-      router.replace('/signin' as any); // Type assertion to bypass error
+    console.log(`Auth Check: isLoading=${isLoading}, isAuthenticated=${isAuthenticated}, pathname=${pathname}, isPublicRoute=${isPublicRoute}`);
+
+    if (isAuthenticated === false && !isPublicRoute) {
+      console.log("Redirecting to /signin (unauthenticated)");
+      router.replace('/signin');
     } else if (isAuthenticated && isPublicRoute) {
-      router.replace('/' as any); // Type assertion to bypass error
+      console.log("Redirecting to /(tabs) (authenticated)");
+      router.replace('/(tabs)');
     }
-  }, [isAuthenticated, pathname, router]);
+  }, [isAuthenticated, isLoading, pathname, router]);
 
-  if (isAuthenticated === null) {
-    return null;
-  }
+  if (isLoading) return null;
 
   return (
-    <ThemeContext.Provider value={{ theme: themeType, setTheme, isDark }}>
-      <PaperProvider theme={isDark ? customDarkTheme : customLightTheme}>
-        <ThemeProvider value={navigationTheme}>
+    <AppThemeContext.Provider value={{ theme: appThemeMode, setTheme: setAppTheme, isDark }}>
+      <PaperProvider theme={currentPaperTheme}>
+        <ThemeProvider value={finalNavigationTheme}>
           <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
           </Stack>
           <StatusBar style={isDark ? 'light' : 'dark'} />
         </ThemeProvider>
       </PaperProvider>
-    </ThemeContext.Provider>
+    </AppThemeContext.Provider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
