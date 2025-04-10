@@ -25,36 +25,48 @@ export default function HomeScreen() {
     fetchUserData(); // Ensure credits are up-to-date on mount
   }, [fetchUserData]);
 
-  const handleInterpretDream = async () => {
-    if (!dreamText.trim() || dreamText.trim().length < MIN_DREAM_LENGTH) return;
+// client/app/(tabs)/index.tsx (partial update)
+const handleInterpretDream = async () => {
+  if (!dreamText.trim() || dreamText.trim().length < MIN_DREAM_LENGTH) return;
 
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('Authentication token missing');
-      const dreamInterpretation = await interpretDream(dreamText, i18n.language, token);
+  if (interpretationCredits <= 0) {
+    router.push('/(tabs)/subscribe'); // Redirect to subscribe if no credits
+    return;
+  }
 
-      const newDream: Dream = {
-        id: Date.now().toString(),
-        content: dreamText,
-        interpretation: dreamInterpretation,
-        date: new Date().toISOString(),
-        language: i18n.language,
-      };
+  setLoading(true);
+  setError(null);
+  try {
+    if (!token) throw new Error('Authentication token missing');
+    const dreamInterpretation = await interpretDream(dreamText, i18n.language, token);
 
-      await saveDream(newDream);
-      setInterpretation(dreamInterpretation);
-      setHasInterpretedOnce(true);
-      await fetchUserData(); // Update credits after interpretation
-    } catch (err) {
-      // Type-safe error handling
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      console.error('Error interpreting dream:', errorMessage);
-      setError(errorMessage === 'Failed to interpret dream' ? t('home.error') : errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const newDream: Dream = {
+      id: Date.now().toString(),
+      content: dreamText,
+      interpretation: dreamInterpretation,
+      date: new Date().toISOString(),
+      language: i18n.language,
+    };
+
+    await saveDream(newDream);
+    setInterpretation(dreamInterpretation);
+    setHasInterpretedOnce(true);
+    await fetchUserData(); // Update credits from backend
+    console.log('Credits after interpretation:', interpretationCredits); // Debug log
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error('Error interpreting dream:', errorMessage);
+    setError(errorMessage === 'Failed to interpret dream' ? t('home.error') : errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Add this in useEffect to log initial credits
+useEffect(() => {
+  fetchUserData();
+  console.log('Initial credits on mount:', interpretationCredits); // Debug log
+}, [fetchUserData]);
 
   const isDreamTextValid = dreamText.trim().length >= MIN_DREAM_LENGTH;
 
@@ -104,27 +116,16 @@ export default function HomeScreen() {
               {error}
             </HelperText>
           )}
-          {interpretationCredits > 0 ? (
-            <Button
-              mode="contained"
-              onPress={handleInterpretDream}
-              loading={loading}
-              disabled={loading || !isDreamTextValid}
-              style={styles.button}
-              contentStyle={styles.buttonContent}
-            >
-              {loading ? t('home.loading') : t('home.interpret')}
-            </Button>
-          ) : hasInterpretedOnce ? (
-            <Button
-              mode="contained"
-              onPress={() => router.push('/subscribe')} // Explicitly specify the tabs route
-              style={styles.button}
-              contentStyle={styles.buttonContent}
-            >
-              {t('home.subscribe')}
-            </Button>
-          ) : null}
+          <Button
+            mode="contained"
+            onPress={handleInterpretDream}
+            loading={loading}
+            disabled={loading || !isDreamTextValid}
+            style={styles.button}
+            contentStyle={styles.buttonContent}
+          >
+            {loading ? t('home.loading') : t('home.interpret')}
+          </Button>
         </Card.Content>
       </Card>
 

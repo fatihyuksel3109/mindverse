@@ -1,6 +1,9 @@
+// client/context/AuthContext.tsx
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+
+const API_URL = 'http://localhost:3000'; // TODO: Move to env variable
 
 interface AuthContextType {
   token: string | null;
@@ -10,6 +13,7 @@ interface AuthContextType {
   login: (newToken: string) => Promise<void>;
   logout: () => Promise<void>;
   fetchUserData: () => Promise<void>;
+  setInterpretationCredits: (credits: number) => void; // Added
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,10 +33,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setInterpretationCredits(0);
         return;
       }
-      const response = await fetch('http://localhost:3000/api/profile', {
-        headers: { 'Authorization': `Bearer ${storedToken}` },
+      const response = await fetch(`${API_URL}/api/profile`, {
+        headers: { Authorization: `Bearer ${storedToken}` },
       });
       const data = await response.json();
+      console.log('Fetched user data:', data);
       if (response.ok) {
         setToken(storedToken);
         setIsAuthenticated(true);
@@ -60,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await AsyncStorage.setItem('token', newToken);
       setToken(newToken);
       setIsAuthenticated(true);
-      await fetchUserData(); // Fetch credits after login
+      await fetchUserData();
     } catch (e) {
       console.error('Failed to save token', e);
     } finally {
@@ -83,7 +88,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, isAuthenticated, isLoading, interpretationCredits, login, logout, fetchUserData }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        isAuthenticated,
+        isLoading,
+        interpretationCredits,
+        login,
+        logout,
+        fetchUserData,
+        setInterpretationCredits,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

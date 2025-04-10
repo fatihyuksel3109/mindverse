@@ -98,12 +98,19 @@ app.post('/api/signin', async (req, res) => {
 });
 
 // Profile Route
+// server/index.js (partial update)
 app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select('-password');
     if (!user) return res.status(404).json({ error: 'User not found' });
+    console.log('Profile data sent:', {
+      email: user.email,
+      createdAt: user.createdAt,
+      interpretationCredits: user.interpretationCredits,
+    });
     res.json({ email: user.email, createdAt: user.createdAt, interpretationCredits: user.interpretationCredits });
   } catch (error) {
+    console.error('Profile fetch error:', error);
     res.status(400).json({ error: error.message });
   }
 });
@@ -135,15 +142,30 @@ app.post('/api/subscribe', authenticateToken, async (req, res) => {
 });
 
 // Dream Interpretation Route
+// server/index.js (yalnızca /api/interpret kısmı güncellendi)
+// server/index.js (updated /api/interpret)
 app.post('/api/interpret', authenticateToken, async (req, res) => {
+  console.log('Interpret request received:', req.body); // Log incoming request
   try {
     const user = await User.findById(req.user.userId);
-    if (!user || user.interpretationCredits <= 0) {
+    if (!user) {
+      console.log('User not found for ID:', req.user.userId);
+      return res.status(404).json({ error: 'User not found' });
+    }
+    console.log('User before interpretation:', {
+      id: user._id,
+      email: user.email,
+      credits: user.interpretationCredits,
+    });
+
+    if (user.interpretationCredits <= 0) {
+      console.log('No credits remaining for user:', user.email);
       return res.status(403).json({ error: 'No interpretation credits remaining. Please subscribe.' });
     }
 
     const { dreamText, language } = req.body;
     if (!dreamText || !language) {
+      console.log('Missing dreamText or language:', { dreamText, language });
       return res.status(400).json({ error: 'Dream text and language are required' });
     }
 
@@ -155,6 +177,7 @@ app.post('/api/interpret', authenticateToken, async (req, res) => {
       ar: `يرجى تفسير هذا الحلم بالعربية: ${dreamText}`,
     }[language] || `Please interpret this dream in ${language}: ${dreamText}`;
 
+    console.log('Calling OpenAI with instruction:', languageInstruction);
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
@@ -165,13 +188,27 @@ app.post('/api/interpret', authenticateToken, async (req, res) => {
       max_tokens: 500,
     });
 
+    if (!completion.choices || !completion.choices[0]) {
+      console.log('Invalid OpenAI response:', completion);
+      throw new Error('Invalid OpenAI response');
+    }
+
     const interpretation = completion.choices[0].message.content || 'No interpretation available';
+    console.log('Interpretation received:', interpretation);
+
     user.interpretationCredits -= 1;
-    await user.save();
+    console.log('Credits after decrease:', user.interpretationCredits);
+
+    const savedUser = await user.save();
+    console.log('User saved after interpretation:', {
+      id: savedUser._id,
+      email: savedUser.email,
+      credits: savedUser.interpretationCredits,
+    });
 
     res.json({ interpretation, credits: user.interpretationCredits });
   } catch (error) {
-    console.error('Error interpreting dream:', error);
+    console.error('Error in /api/interpret:', error.message || error);
     res.status(500).json({ error: 'Failed to interpret dream' });
   }
 });

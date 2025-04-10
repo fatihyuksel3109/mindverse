@@ -55,6 +55,11 @@ const resources = {
         title: 'Subscribe for More Interpretations',
         buy: 'Buy Now',
       },
+      subscription: {
+        single: "1 Interpretation",
+        pack10: "10 Interpretations",
+        pack20: "20 Interpretations",
+      },      
     }
   },
   fr: {
@@ -103,6 +108,11 @@ const resources = {
         title: 'Abonnez-vous pour plus d’interprétations',
         buy: 'Acheter maintenant',
       },
+      subscription: {
+        single: "1 Interprétation",
+        pack10: "10 Interprétations",
+        pack20: "20 Interprétations",
+      },      
     }
   },
   tr: {
@@ -122,7 +132,7 @@ const resources = {
         interpretation: 'Rüyanızın Yorumu',
         loading: 'Rüyanız yorumlanıyor...',
         error: 'Rüya yorumlanırken hata oluştu. Lütfen tekrar deneyin.',
-        credits: 'Kalan Tabirler: {{count}}',
+        credits: 'Kalan Kredi: {{count}}',
         subscribe: 'Daha Fazla İçin Abone Ol',
         minLength: 'Rüyanızı yorumlamak için lütfen en az {{count}} karakter girin.',
       },
@@ -145,13 +155,18 @@ const resources = {
         loading: 'Yükleniyor...',
         networkError: 'Ağ hatası',
         loadFailed: 'Profil yüklenemedi',
-        credits: 'Kalan Tabirler: {{count}}',
+        credits: 'Kalan Kredi: {{count}}',
         subscribe: 'Abone Ol',
       },
       subscribe: {
         title: 'Daha Fazla Tabir İçin Abone Ol',
         buy: 'Şimdi Satın Al',
       },
+      subscription: {
+        single: "1 Rüya Yorumu",
+        pack10: "10 Rüya Yorumu",
+        pack20: "20 Rüya Yorumu",
+      },      
     }
   },
   de: {
@@ -200,6 +215,11 @@ const resources = {
         title: 'Abonnieren für weitere Deutungen',
         buy: 'Jetzt kaufen',
       },
+      subscription: {
+        single: "1 Traumdeutung",
+        pack10: "10 Traumdeutungen",
+        pack20: "20 Traumdeutungen",
+      },      
     }
   },
   ar: {
@@ -248,6 +268,11 @@ const resources = {
         title: 'اشترك للحصول على المزيد من التفسيرات',
         buy: 'اشتر الآن',
       },
+      subscription: {
+        single: "تفسير حلم واحد",
+        pack10: "10 تفسيرات أحلام",
+        pack20: "20 تفسيرات أحلام",
+      },      
     }
   }
 };

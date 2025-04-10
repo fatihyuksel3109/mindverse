@@ -45,7 +45,7 @@ export default function SubscribeScreen() {
         <Card key={plan.id} style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text style={[styles.planName, { color: theme.colors.onSurface }]}>
-              {plan.name}
+              {t(plan.nameKey)}
             </Text>
             <Text style={[styles.planPrice, { color: theme.colors.primary }]}>
               ₺{plan.price}
